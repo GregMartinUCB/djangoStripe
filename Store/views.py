@@ -37,7 +37,7 @@ def Measurements(request):
 
 
 def StripePay(request):
-	
+	total = 510.0
 	#Get Secret key from file which is ignored in Git
 	GetApiKey()
 	
@@ -56,7 +56,7 @@ def StripePay(request):
 		chargeSuccessful = False
 		try:
 			charge = stripe.Charge.create(
-					 amount = 50000, #In Cents
+					 amount = total*100, #In Cents
 					 currency = "usd",
 					 source = token,
 					 description = "Test Charge"
@@ -76,7 +76,7 @@ def StripePay(request):
 			dataLinker.SaveData()
 
 
-	return render(request, 'Store/index.html')
+	return render(request, 'Store/index.html', {'total':total})
 
 def GetApiKey():
 	module_dir = os.path.dirname(__file__)  # get current directory
