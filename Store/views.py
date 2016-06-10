@@ -37,46 +37,37 @@ def Measurements(request):
 
 
 def StripePay(request):
-	total = 510.0
-	#Get Secret key from file which is ignored in Git
-	GetApiKey()
-	
+    total = 510
+    #Get Secret key from file which is ignored in Git
+    GetApiKey()
+    chargeSuccessful = False
+
+    postData = request.POST
+    #Print out all data held in post, for debugging purposes
+    
+
 	#Check the POST for a stripe token
-	if 'stripeToken' in request.POST:
-		postData = request.POST
+    if 'stripeToken' in request.POST:
+        postData = request.POST
 		 
-		#Print out all data held in post, for debugging purposes
-		for key, value in postData.items():
-			print (key,value)
+    #Print out all data held in post, for debugging purposes
+        for key, value in postData.items():
+            print (key,value)
 
-		token = request.POST['stripeToken']
-
-		#ChargeSuccessful should only become true when the try statement
-		#either succeeds or an error other than CardError is thrown.
-		chargeSuccessful = False
-		try:
-			charge = stripe.Charge.create(
-					 amount = total*100, #In Cents
-					 currency = "usd",
-					 source = token,
-					 description = "Test Charge"
-			)
-			print "Card Charged"
-			chargeSuccessful = True
-	
-		except stripe.error.CardError as e:
-			#The card has been declined Maybe put in an email function
-			chargeSuccessful =False
-			pass
-
-		#Put all the collected data together and if it passes test Save.
-		if chargeSuccessful:
-			dataLinker = DataLinker()
-			dataLinker.GetTransactionData(token)
-			dataLinker.SaveData()
+        token = request.POST['stripeToken']
+        """
+        for key, value in postData.items():
+            print (key,value)
+        """
+        #Put all the collected data together and if it passes test Save.
+        dataLinker = DataLinker()
+        dataLinker.GetTransactionData(token, amount)
+        dataLinker.SaveData()
 
 
-	return render(request, 'Store/index.html', {'total':total})
+
+
+    return render(request, 'Store/index.html', {'total':total})
 
 def GetApiKey():
 	module_dir = os.path.dirname(__file__)  # get current directory

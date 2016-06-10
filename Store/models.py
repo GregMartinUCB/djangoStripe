@@ -5,18 +5,24 @@ from django.forms import ModelForm
 
 
 class Customer(models.Model):
-	name = models.CharField(max_length = 100)
-	email = models.EmailField()
+    name_first = models.CharField(max_length = 100)
+    name_last = models.CharField(max_length = 100)
+    email = models.EmailField()
+
+
 
 class Transaction(models.Model):
-	stripe_token = models.CharField(max_length=200)
-	date = models.DateTimeField('date of transaction')
-	amount = models.FloatField(default = 0)
-	customer = models.ForeignKey(Customer, default = -1, on_delete = models.CASCADE)
+    stripe_token = models.CharField(max_length=200)
+    date = models.DateTimeField('date of transaction',default = None)
+    amount = models.FloatField(default = 0)
+    customer = models.ForeignKey(Customer, default = -1, on_delete = models.CASCADE)
+    address = models.CharField(max_length = 100)
+    city = models.CharField(max_length = 100)
+    zip = models.IntegerField(default = -1)
 
 class LineItem(models.Model):
 	type = models.CharField(max_length=50)
-	quantity = models.IntegerField()
+	quantity = models.IntegerField(default = -1)
 	customer = models.ForeignKey(Customer, default = -1, on_delete = models.CASCADE)
 	transaction = models.ForeignKey(Transaction, on_delete = models.CASCADE)
 	

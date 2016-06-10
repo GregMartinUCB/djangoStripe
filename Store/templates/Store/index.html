@@ -39,7 +39,7 @@ overflow: auto;
         <hr class="featurette-divider"></hr></div>
     </div>
           <script src='https://js.stripe.com/v2/' type='text/javascript'></script>
-          <form accept-charset="UTF-8" action="/buy/" class="require-validation" data-cc-on-file="false" data-stripe-publishable-key="pk_test_CQbXRLp2XcUedWmG4IpSmSvp" id="payment-form" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="✓" /><input name="_method" type="hidden" value="PUT" /><input name="authenticity_token" type="hidden" value="qLZ9cScer7ZxqulsUWazw4x3cSEzv899SP/7ThPCOV8=" /></div>
+          <form accept-charset="UTF-8" action="../buy/" class="require-validation" data-cc-on-file="false" data-stripe-publishable-key="pk_test_CQbXRLp2XcUedWmG4IpSmSvp" id="payment-form" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="✓" /><input name="_method" type="hidden" value="PUT" /><input name="authenticity_token" type="hidden" value="qLZ9cScer7ZxqulsUWazw4x3cSEzv899SP/7ThPCOV8=" /></div>
               {%csrf_token%}
             <br>
      
@@ -63,10 +63,33 @@ overflow: auto;
               </div>
             
             </div>
+            <div class='form-row'>
+                <div class='col-xs-12 form-group card required'>
+                    <label class='control-label'>Email</label>
+                    <input autocomplete='off' class='form-control' size='20' type='text' name="email">
+                </div>
+
+            </div>
             
-            
-            
-            
+            <div class='form-row'>
+                <div class='col-xs-12 form-group card required'>
+                    <label class='control-label'>Address</label>
+                    <input autocomplete='off' class='form-control' size='20' type='text' name="address">
+                </div>
+
+            </div>
+            <div class='form-row'>
+                <div class='col-xs-6 form-group card required'>
+                    <label class='control-label'>City</label>
+                    <input autocomplete='off' class='form-control' size='20' type='text' name="city">
+                </div>
+                <div class='col-xs-6 form-group card required'>
+                    <label class='control-label'>Zip code</label>
+                    <input autocomplete='off' class='form-control' size='20' type='text' name="zip">
+                </div>
+
+            </div>
+                
             
             
             <div class='form-row'>
@@ -80,9 +103,20 @@ overflow: auto;
              <div class='form-row'>
               <div class='col-xs-12 form-group card required'>
                 <label class='control-label'>Billing Address</label>
-                <input autocomplete='off' class='form-control' size='20' type='text'name="address">
+                <input autocomplete='off' class='form-control' size='20' type='text'name="billingAddress">
               </div>
               
+            </div>
+            <div class='form-row'>
+                <div class='col-xs-6 form-group card required'>
+                    <label class='control-label'>City</label>
+                    <input autocomplete='off' class='form-control' size='20' type='text' name="billingCity">
+                </div>
+                <div class='col-xs-6 form-group card required'>
+                    <label class='control-label'>Zip code</label>
+                    <input autocomplete='off' class='form-control' size='20' type='text' name="billingZip">
+                </div>
+
             </div>
             
             <div class='form-row'>
@@ -123,7 +157,7 @@ overflow: auto;
                 
               </div>
             </div>
-            
+
             
           </form>
         </div>   </div>
@@ -168,9 +202,12 @@ $(function() {
         number: $('.card-number').val(),
         cvc: $('.card-cvc').val(),
         exp_month: $('.card-expiry-month').val(),
-        exp_year: $('.card-expiry-year').val()
+        exp_year: $('.card-expiry-year').val(),
+        name: document.getElementsByName("name"),
+        address_line1: document.getElementsByName("billingAddress")
       }, stripeResponseHandler);
     }
+
   });
 
   function stripeResponseHandler(status, response) {
@@ -183,8 +220,8 @@ $(function() {
       // token contains id, last4, and card type
       var token = response['id'];
       // insert the token into the form so it gets submitted to the server
-      $form.find('input[type=text]').empty();
-      $form.append("<input type='hidden' name='reservation[stripe_token]' value='" + token + "'/>");
+      $form.append($('<input type="hidden" name="stripeToken" />').val(token));
+      $form.append($('<input type="hidden" name="hasCharged" />').val(true));
       $form.get(0).submit();
     }
   }
