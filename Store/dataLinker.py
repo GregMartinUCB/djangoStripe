@@ -22,7 +22,9 @@ class DataLinker():
         DataLinker.transactionSave.stripe_token = dataPost['stripeToken']
         DataLinker.transactionSave.date.auto_now_add
         DataLinker.transactionSave.amount = amount
-        
+        DataLinker.transactionSave.address = dataPost['address']
+        DataLinker.transactionSave.city = dataPost['city']
+        DataLinker.transactionSave.zip = dataPost['zip']
         
         return
 
@@ -32,13 +34,32 @@ class DataLinker():
         DataLinker.customerSave.name_first = dataPost['firstName']
         DataLinker.customerReady = True
 
-    def SaveData(self):
-	    """
-	    if suitReady && lineItemReady && transactionReady && customerReady:
+    def GetLineItemData(self):
+        DataLinker.lineItemSave.type = "suit"
+        DataLinker.lineItemSave.quantity = 1
 
-		    DataLinker.suitSave.save()
-		    DataLinker.ResetAll()
-	    """
+    def LinkData(self,customerPk, transactionPk, lineItemPk):
+        DataLinker.suitSave.customer = customerPk
+        DataLinker.suitSave.lineItem = lineItemPk
+        DataLinker.suitReady = True
+
+        DataLinker.lineItemSave.transaction = transactionPk
+        DataLinker.lineItemReady = True
+
+        DataLinker.transactionSave.customer = customerPk
+        DataLinker.transactionReady = True
+
+    def SaveData(self):
+	        
+
+        if (suitReady and lineItemReady and transactionReady and customerReady):
+
+            DataLinker.suitSave.save()
+            DataLinker.transactionSave.save()
+            DataLinker.customerSave.save()
+            DataLinker.lineItemSave.save()
+            DataLinker.ResetAll()
+	    
 	    DataLinker.suitSave.save()
 	    self.ResetAll()
 

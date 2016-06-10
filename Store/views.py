@@ -62,6 +62,9 @@ def StripePay(request):
         #Put all the collected data together and if it passes test Save.
         dataLinker = DataLinker()
         dataLinker.GetTransactionData(token, amount)
+        dataLinker.GetCustomerData(postData)
+        dataLinker.GetLineItemData()
+        dataLinker.LinkData()
         dataLinker.SaveData()
 
 
