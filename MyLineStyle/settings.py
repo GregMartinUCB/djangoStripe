@@ -105,6 +105,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/

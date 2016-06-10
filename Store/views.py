@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.core.context_processors import csrf
 from django.http import HttpResponse
 from django.template import loader
@@ -23,13 +23,12 @@ def Measurements(request):
 			print "Form is valid"
 			
 			suitModelInstance = form.save(commit = False)
-			dataLinker = DataLinker()
-			dataLinker.GetMeasurements(suitModelInstance)
+			request.session['suitInstance'] = suitModelInstance
 
-			return HttpResponseRedirect('buy/')
+			return redirect('pay')
 		
 	else:
-		form = MeasurementForm()
+		form = SuitForm()
 
 
 
@@ -59,13 +58,9 @@ def StripePay(request):
         for key, value in postData.items():
             print (key,value)
         """
-        #Put all the collected data together and if it passes test Save.
+        #Store transaction data
         dataLinker = DataLinker()
-        dataLinker.GetTransactionData(token, amount)
-        dataLinker.GetCustomerData(postData)
-        dataLinker.GetLineItemData()
-        dataLinker.LinkData()
-        dataLinker.SaveData()
+        dataLinker.GetAllData(postData, total, request.session['suitInstance'])
 
 
 

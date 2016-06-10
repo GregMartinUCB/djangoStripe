@@ -1,92 +1,62 @@
 from django.db import models
 from models import SuitDetail, LineItem, Transaction, Customer
 import stripe
+import datetime
 
 class DataLinker():
 	
-    suitSave = SuitDetail()
-    lineItemSave = LineItem()
-    transactionSave = Transaction()
-    customerSave = Customer()
-	
-    suitReady = False
-    lineItemReady = False
-    transactionReady = False
-    customerReady = False
 
-    def GetMeasurements(self, suit):
-		
-	    DataLinker.suitSave = suit
-
-    def GetTransactionData(self, dataPost, amount):
-        DataLinker.transactionSave.stripe_token = dataPost['stripeToken']
-        DataLinker.transactionSave.date.auto_now_add
-        DataLinker.transactionSave.amount = amount
-        DataLinker.transactionSave.address = dataPost['address']
-        DataLinker.transactionSave.city = dataPost['city']
-        DataLinker.transactionSave.zip = dataPost['zip']
+    def GetTransactionData(self,dataPost, amount):
+        transactionModel = Transaction()
+        transactionModel.stripe_token = dataPost['stripeToken']
+        transactionModel.date = datetime.datetime.now()
+        transactionModel.amount = amount
+        transactionModel.address = dataPost['address']
+        transactionModel.city = dataPost['city']
+        transactionModel.zip = dataPost['zip']
         
-        return
+        return transactionModel
 
-    def GetCustomerData(self, dataPost):
-        DataLinker.customerSave.email = dataPost['email']
-        DataLinker.customerSave.name_last = dataPost['lastName']
-        DataLinker.customerSave.name_first = dataPost['firstName']
-        DataLinker.customerReady = True
+    def GetCustomerData(self,dataPost):
+        customerData = Customer()
+        customerData.email = dataPost['email']
+        customerData.name_last = dataPost['lastName']
+        customerData.name_first = dataPost['firstName']
+        
+        return customerData
 
     def GetLineItemData(self):
-        DataLinker.lineItemSave.type = "suit"
-        DataLinker.lineItemSave.quantity = 1
+        lineItem = LineItem()
+        lineItem.type = "suit"
+        lineItem.quantity = 1
 
-    def LinkData(self,customerPk, transactionPk, lineItemPk):
-        DataLinker.suitSave.customer = customerPk
-        DataLinker.suitSave.lineItem = lineItemPk
-        DataLinker.suitReady = True
-
-        DataLinker.lineItemSave.transaction = transactionPk
-        DataLinker.lineItemReady = True
-
-        DataLinker.transactionSave.customer = customerPk
-        DataLinker.transactionReady = True
-
-    def SaveData(self):
-	        
-
-        if (suitReady and lineItemReady and transactionReady and customerReady):
-
-            DataLinker.suitSave.save()
-            DataLinker.transactionSave.save()
-            DataLinker.customerSave.save()
-            DataLinker.lineItemSave.save()
-            DataLinker.ResetAll()
-	    
-	    DataLinker.suitSave.save()
-	    self.ResetAll()
-
-    def CheckReady(self):
-	    suitTemp = SuitDetail()
-	    lineItemTemp = LineItem()
-	    transactionTemp = Transaction()
-	    customerTemp = Customer()
-
-	    if suitTemp != suitSave:
-		    suitReady = True
-	    if lineItemTemp != lineItemSave:
-		    lineItemReady = True
-	    if transactionTemp != transactionSave:
-		    transactionReady = True
-	    if customerTemp != customerSave:
-		    customerReady = True
+        return lineItem
 
 
-    def ResetAll(self):
-		
-	    suitReady = False
-	    lineItemReady = False
-	    transactionReady = False
-	    customerReady = False
+    def GetAllData(self,postData,amount,suit):
 
-	    suitSave = SuitDetail()
-	    lineItemSave = LineItem()
-	    transactionSave = Transaction()
-	    customerSave = Customer()
+        transaction = self.GetTransactionData(postData, amount)
+        customer = self.GetCustomerData(postData)
+        lineItem = self.GetLineItemData()
+
+
+        #Customer must be saved to generate the id value
+        customer.save()
+        #Now set the foreign for all those pointing to customer
+        transaction.customer = customer
+        lineItem.customer = customer
+        suit.customer = customer
+
+        #Repeat process: Save then Set Keys
+        transaction.save()
+        lineItem.transaction = transaction
+        suit.transaction = transaction
+
+        lineItem.save()
+        
+        suit.save()
+
+
+
+        return
+
